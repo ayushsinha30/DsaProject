@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+	
+<!-- Mirrored from dichchankinh.com/~galles/visualization/StackArray.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 28 Nov 2022 11:42:42 GMT -->
+<head>
+		
+		<title>
+			Array Stack Visualization | Array Stack Animation 
+		</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+                <meta name="description" content="Array Stack Visualization online,Array Stack Visualization simulator"/>
+		<!-- css sheet for how the page is laid out -->
+		
+		<link rel="stylesheet" href="visualizationPageStyle.css">
+			
+			
+		<!-- jqueury stuff.  Only used for the animation speed slider. -->
+		<link rel="stylesheet" href="ThirdParty/jquery-ui-1.8.11.custom.css">				
+		<script src="ThirdParty/jquery-1.5.2.min.js"></script>
+		<script src="ThirdParty/jquery-ui-1.8.11.custom.min.js"></script>
+				
+		<!-- Javascript for the actual visualization code -->
+		<script type = "application/javascript" src = "AnimationLibrary/CustomEvents.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/UndoFunctions.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/AnimatedObject.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/AnimatedLabel.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/AnimatedCircle.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/AnimatedRectangle.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/AnimatedLinkedList.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/HighlightCircle.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/Line.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/ObjectManager.js"> </script>
+		<script type = "application/javascript" src = "AnimationLibrary/AnimationMain.js"> </script>
+
+		<script type = "application/javascript" src = "AlgorithmLibrary/Algorithm.js"> </script>
+		<script type = "application/javascript" src = "AlgorithmLibrary/StackArray.js"> </script> 
+				
+			
+	 </head> 
+	
+	<body onload="init();" class="VisualizationMainPage">
+		
+		<div id = "container">
+			
+			<div id="header">  
+				<h1>Stack (Array Implementaion) Visualization</h1>
+			</div>
+			
+			<div id = "mainContent"> 
+				
+				<div id = "algoControlSection">
+					<!-- Table for buttons to control specific animation (insert/find/etc) -->
+					<!-- (filled in by simulator code specific to the animtion) -->
+					<table id="AlgorithmSpecificControls"> </table> 
+				</div>
+				
+					<!-- Drawing canvas where all animation is done.  Note:  can be resized in code -->
+									
+				<canvas id="canvas" width="1000" height="500"></canvas>
+				
+				<div id = "generalAnimationControlSection">
+					<!-- Table for buttons to control general animation (play/pause/undo/etc) ->
+					<!-- (filled in by simulator code, specifically AnimationMain.js)  -->
+
+					<table id="GeneralAnimationControls">  </table>		
+				</div>
+                                <div id="theory">
+                                    <table border="0">
+  <tbody><tr>
+    <td width="100%" bgcolor="#CCE6FF" bordercolor="#CCE6FF"><b><font size="4">The Stack Abstract Data Type</font></b></td>
+  </tr>
+  <tr>
+    <td width="100%">
+<p align="left">A stack is a collection of objects that are inserted and removed 
+according to the <span style="background-color: #FFFF00"> <b>last-in first-out</b> 
+(<b>LIFO</b>)</span> principle. Objects can be inserted into a stack at any 
+time, but only the most recently inserted object can be removed at any time. 
+Basically, a stack is a data structure of ordered items such that items can be 
+inserted and removed only at one end (called the <b>top</b>). When we say the 
+items are ordered, we mean the order we can access them.</p>
+<p align="left"><img border="0" src="Images/stack/stack.1.jpg" width="40%"></p>
+<p align="left">Stacks are the simplest of all data structures, yet they are 
+also among the most important, as they are used in a host of different 
+applications that include many more sophisticated data structures. We will go 
+over three applications of stacks. These examples are central to many activities 
+that a computer must do: <b> expression evaluation</b>, <b> backtracking</b> 
+(game playing, finding paths, exhaustive searching), and <b> memory management</b>.</p>
+<p align="left">First of all, let's look at the stack ADT.</p>
+<code>
+ <font color="#ff0080">/** <br>
+  &nbsp;
+  * Interface for a stack: a collection of objects that are inserted<br>
+  &nbsp;
+  * and removed according to the last-in first-out principle.  This<br>
+  &nbsp;
+  * interface includes the main methods of java.util.Stack.<br>
+  &nbsp;
+  * <br>
+  &nbsp;
+  * @author Roberto Tamassia<br>
+  &nbsp;
+  * @author Michael Goodrich<br>
+  &nbsp;
+  */</font><br>
+
+<font color="#8000a0">public</font> <font color="#8000a0"><font color="#ff8000">interface</font> </font>Stack&lt;E&gt; {<br>
+ <font color="#ff0080">&nbsp; /**<br>
+  &nbsp;&nbsp;&nbsp;
+  * Return the number of elements in the stack.<br>
+  &nbsp;&nbsp;&nbsp;
+  * @return number of elements in the stack. <br>
+  &nbsp;&nbsp;&nbsp; */</font><br>
+  <font color="#8000a0">&nbsp; public int</font> <font color="#0000ff">size</font>();<br>
+ <font color="#ff0080">&nbsp; /** <br>
+  &nbsp;&nbsp;&nbsp;
+  * Return whether the stack is empty.<br>
+  &nbsp;&nbsp;&nbsp;
+  * @return true if the stack is empty, false otherwise. <br>
+  &nbsp;&nbsp;&nbsp; */</font><br>
+  <font color="#8000a0">&nbsp; public boolean</font> <font color="#0000ff">isEmpty</font>();<br>
+ <font color="#ff0080">&nbsp; /** <br>
+  &nbsp;&nbsp;&nbsp;
+  * Inspect the element at the top of the stack.<br>
+  &nbsp;&nbsp;&nbsp;
+  * @return top element in the stack.  <br>
+  &nbsp;&nbsp;&nbsp;
+  */</font><br>
+  <font color="#8000a0">&nbsp; public </font>E <font color="#0000ff">top</font>(); <br>
+    <font color="#8000a0"><font color="#ff8000">&nbsp; </font> </font>
+<font color="#ff0080">/**<br>
+  &nbsp;&nbsp;&nbsp;
+  * Insert an element at the top of the stack.<br>
+  &nbsp;&nbsp;&nbsp;
+  * @param element to be inserted.<br>
+  &nbsp;&nbsp;&nbsp; */</font><br>
+  <font color="#8000a0">&nbsp; public void</font> <font color="#0000ff">push </font>(E element); <br>
+ <font color="#ff0080">&nbsp; /** <br>
+  &nbsp;&nbsp;&nbsp;
+  * Remove the top element from the stack.<br>
+  &nbsp;&nbsp;&nbsp;
+  * @return element removed.<br>
+  &nbsp;
+  &nbsp;
+  */</font><br>
+  <font color="#8000a0">&nbsp; public </font>E <font color="#0000ff">pop</font>();<br>
+}</code>
+</td>
+</tr>
+<tr>
+    <td width="100%" bgcolor="#CCE6FF" bordercolor="#CCE6FF"><b><font size="4">
+	Array Based Stack Implementation</font></b></td></tr><tr>
+    <td width="100%">
+<code> <font color="#ff0080">/**<br>
+&nbsp; * Implementation of the stack ADT using a fixed-length array.<br>
+&nbsp; */</font><br>
+<font color="#8000a0">public</font> <font color="#8000a0"><font color="#ff8000">class</font> </font>ArrayStack&lt;E&gt; <font color="#8000a0"><font color="#ff8000">implements</font> </font>Stack&lt;E&gt; {<br>
+<font color="#8000a0">&nbsp; protected int</font> capacity;
+<font color="#ff0080">// The actual capacity of the stack array</font><br>
+<font color="#8000a0">&nbsp; public static</font> <font color="#8000a0">final int</font> CAPACITY = 1000;	<font color="#ff0080">// default array capacity</font><br>
+<font color="#8000a0">&nbsp; protected </font>E S[];		<font color="#ff0080">// Generic array used to implement the stack </font><br>
+<font color="#8000a0">&nbsp; protected int</font> top = -1;	<font color="#ff0080">// index for the top of the stack</font><br>
+<font color="#8000a0">&nbsp; public </font><font color="#0000ff">ArrayStack</font>() {<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; this</font>(CAPACITY); <font color="#ff0080">// default capacity </font><br>
+&nbsp;
+}<br>
+<font color="#8000a0">&nbsp; public </font><font color="#0000ff">ArrayStack</font>(<font color="#8000a0">int</font> cap) {<br>
+&nbsp;&nbsp;&nbsp;
+capacity = cap;<br>
+&nbsp;&nbsp;&nbsp;
+S =<font color="#0000ff"> </font>(E[]) <font color="#8000a0"><font color="#ff8000">new</font> </font>Object[capacity]; <font color="#ff0080">// compiler may give warning, but this is ok</font><br>
+&nbsp;
+}<br>
+  <font color="#8000a0">&nbsp; public int</font> <font color="#0000ff">size</font>() {<br>
+    <font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font><font color="#0000ff"> </font>(top + 1);<br>
+&nbsp;
+}<br>
+<font color="#8000a0">&nbsp; public boolean</font> <font color="#0000ff">isEmpty</font>() {<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font><font color="#0000ff"> </font>(top &lt; 0);<br>
+&nbsp;
+}<br>
+<font color="#8000a0">&nbsp; public void</font> <font color="#0000ff">push</font>(E element) {<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(<font color="#0000ff">size</font>() == capacity) 
+{<br>
+
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font> </font>
+System.out.println(<font color="#008000">"Stack is full."</font>);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;
+S[++top] = element;<br>
+&nbsp;
+}<br>
+<font color="#8000a0">&nbsp; public </font>E <font color="#0000ff">top</font>() {<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(<font color="#0000ff">isEmpty</font>()) 
+{<br>
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font> </font>
+System.out.println(<font color="#008000">"Stack is empty."</font>);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return null;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font> </font>S[top];<br>
+&nbsp;
+}<br>
+<font color="#8000a0">&nbsp; public </font>E <font color="#0000ff">pop</font>() {<br>
+<font color="#8000a0">&nbsp;&nbsp;&nbsp; E </font>element;<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(<font color="#0000ff">isEmpty</font>()) 
+{<br>
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font> </font>
+System.out.println(<font color="#008000">"Stack is empty."</font>);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return null;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;
+element = S[top];<br>
+&nbsp;&nbsp;&nbsp;
+S[top--] = null; <font color="#ff0080">// dereference S[top] for garbage collection.</font><br>
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font> </font>element;<br>
+&nbsp;
+}<br>
+<font color="#8000a0">&nbsp; public String</font> <font color="#0000ff">toString</font>() {<br>
+<font color="#8000a0">&nbsp;&nbsp;&nbsp; String </font>s;<br>
+&nbsp;&nbsp;&nbsp;
+s = <font color="#008000">"["</font>;<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(<font color="#0000ff">size</font>() &gt; 0) s+= S[0];<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(<font color="#0000ff">size</font>() &gt; 1)<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for</font><font color="#0000ff"> </font>(<font color="#8000a0">int</font> i = 1; i &lt;= <font color="#0000ff">size</font>()-1; i++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+s += <font color="#008000">", "</font> + S[i];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font> </font>s + <font color="#008000">"]"</font>;<br>
+&nbsp;
+}<br>
+<font color="#ff0080">&nbsp; //&nbsp; Prints status information about a recent operation and the stack.</font><br>
+<font color="#8000a0">&nbsp; public void</font> <font color="#0000ff">status</font>(<font color="#8000a0">String</font> op, <font color="#8000a0">Object </font>element) {<br>
+&nbsp;&nbsp;&nbsp;
+System.out.<font color="#0000ff">print</font>(<font color="#008000">"------&gt; "</font> 
++ op);&nbsp; <font color="#ff0080">// print this operation</font><br>
+&nbsp;&nbsp;&nbsp;
+System.out.<font color="#0000ff">println</font>(<font color="#008000">", returns "</font> + element); <font color="#ff0080">// what was returned</font><br>
+&nbsp;&nbsp;&nbsp;
+System.out.<font color="#0000ff">print</font>(<font color="#008000">"result: size = "</font> + <font color="#0000ff">size</font>() + <font color="#008000">", isEmpty = "</font> + <font color="#0000ff">isEmpty</font>());<br>
+&nbsp;&nbsp;&nbsp;
+System.out.<font color="#0000ff">println</font>(<font color="#008000">", stack: "</font> + <font color="#ff8000">this</font>);&nbsp;<font color="#ff0080">// contents of the stack</font><br>
+&nbsp;
+}<br><font color="#ff0080">&nbsp; /**<br>
+&nbsp;&nbsp;&nbsp; * Test our program by performing a series of operations on stacks,<br>
+&nbsp;&nbsp;&nbsp; * printing the operations performed, the returned elements and the<br>
+&nbsp;&nbsp;&nbsp; * contents of the stack involved, after each operation.<br>
+&nbsp;&nbsp;&nbsp; */</font><br>
+<font color="#8000a0">&nbsp; public static</font> <font color="#8000a0">void </font><font color="#0000ff">main</font>(<font color="#8000a0">String</font>[] args) {<br>
+<font color="#8000a0">&nbsp;&nbsp;&nbsp; Object </font>o;<br>
+&nbsp;&nbsp;&nbsp; ArrayStack&lt;Integer&gt; A = <font color="#8000a0"><font color="#ff8000">new</font> </font>ArrayStack&lt;Integer&gt;();<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">status</font>(<font color="#008000">"new ArrayStack&lt;Integer&gt; A"</font>, null);<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">push</font>(7);<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">status</font>(<font color="#008000">"A.push(7)"</font>, null);<br>
+&nbsp;&nbsp;&nbsp; o = A.<font color="#0000ff">pop</font>();<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">status</font>(<font color="#008000">"A.pop()"</font>, o);<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">push</font>(9);<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">status</font>(<font color="#008000">"A.push(9)"</font>, null);<br>
+&nbsp;&nbsp;&nbsp; o = A.<font color="#0000ff">pop</font>();<br>
+&nbsp;&nbsp;&nbsp; A.<font color="#0000ff">status</font>(<font color="#008000">"A.pop()"</font>, o);<br>
+&nbsp;&nbsp;&nbsp; ArrayStack&lt;<font color="#8000a0">String</font>&gt; B = <font color="#8000a0"><font color="#ff8000">new</font> </font>ArrayStack&lt;<font color="#8000a0">String</font>&gt;();<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">status</font>(<font color="#008000">"new ArrayStack&lt;String&gt; B"</font>, null);<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">push</font>(<font color="#008000">"Bob"</font>);<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">status</font>(<font color="#008000">"B.push(\"</font>Bob\<font color="#008000">")"</font>, null);<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">push</font>(<font color="#008000">"Alice"</font>);<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">status</font>(<font color="#008000">"B.push(\"</font>Alice\<font color="#008000">")"</font>, null);<br>
+&nbsp;&nbsp;&nbsp; o = B.<font color="#0000ff">pop</font>();<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">status</font>(<font color="#008000">"B.pop()"</font>, o);<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">push</font>(<font color="#008000">"Eve"</font>);<br>
+&nbsp;&nbsp;&nbsp; B.<font color="#0000ff">status</font>(<font color="#008000">"B.push(\"</font>Eve\<font color="#008000">")"</font>, null);<br>
+&nbsp;
+}<br>
+}<br>
+</code>
+</td>
+</tr>
+<tr>
+  <td width="100%" bgcolor="#CCE6FF" bordercolor="#CCE6FF"><b><font size="4">
+ Linked List Based Stack Implementation</font></b></td></tr><tr>
+    <td width="100%">
+&nbsp;
+<code>
+<font color="#8000a0">public</font> <font color="#8000a0"><font color="#ff8000">class</font> </font>Node&lt;E&gt; {<br>
+<font color="#FF0080">&nbsp; </font><font color="#ff0080">// Instance variables:</font><br>
+&nbsp;
+<font color="#8000a0">private </font>E element;<br>
+&nbsp;
+<font color="#8000a0">private </font>Node&lt;E&gt; next;<br>
+&nbsp; <font color="#ff0080">/** Creates a node with null references to its element and next node. */</font><br>
+&nbsp; <font color="#8000a0">public </font><font color="#0000ff">Node</font>() {<br>
+&nbsp; <font color="#ff8000">&nbsp; this</font>(null, null);<br>
+&nbsp; }<br>
+&nbsp;
+<font color="#ff0080">/** Creates a node with the given element and next node. */</font><br>
+&nbsp;
+<font color="#8000a0">public </font><font color="#0000ff">Node</font>(E e, Node&lt;E&gt; n) {<br>
+&nbsp;&nbsp;&nbsp; element = e;<br>
+&nbsp;&nbsp;&nbsp; next = n;<br>
+&nbsp; }<br>
+&nbsp;
+<font color="#ff0080">// Accessor methods:</font><br>
+&nbsp;
+<font color="#8000a0">public </font>E <font color="#0000ff">getElement</font>() {<br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#8000a0"><font color="#ff8000">return</font> </font>element;<br>
+&nbsp; }<br>
+&nbsp;
+<font color="#8000a0">public </font>Node&lt;E&gt; <font color="#0000ff">getNext</font>() {<br>
+&nbsp;&nbsp;&nbsp; 
+    <font color="#8000a0"><font color="#ff8000">return</font> </font>next;<br>
+&nbsp; }<br>
+&nbsp;
+<font color="#ff0080">// Modifier methods:</font><br>
+&nbsp;
+<font color="#8000a0">public void</font> <font color="#0000ff">setElement</font>(E newElem) {<br>
+&nbsp;&nbsp;&nbsp; element = newElem;<br>
+&nbsp; }<br>
+&nbsp;
+<font color="#8000a0">public void</font> <font color="#0000ff">setNext</font>(Node&lt;E&gt; newNext) {<br>
+&nbsp;&nbsp;&nbsp; next = newNext;<br>
+&nbsp; }<br>
+}</code>
+<p></p>
+<p><code>
+<font color="#8000a0">public</font> <font color="#8000a0"><font color="#ff8000">class</font> </font>NodeStack&lt;E&gt; <font color="#8000a0"><font color="#ff8000">implements</font> </font>Stack&lt;E&gt; {<br>
+&nbsp;
+  <font color="#8000a0">protected </font>Node&lt;E&gt; top;	<font color="#ff0080">// reference to the head node</font><br>
+&nbsp;
+  <font color="#8000a0">protected int</font> size;		<font color="#ff0080">// number of elements in the stack</font><br>
+&nbsp;
+  <font color="#8000a0">public </font><font color="#0000ff">NodeStack</font>() {	<font color="#ff0080">// constructs an empty stack</font><br>
+&nbsp;&nbsp;&nbsp; // fill in the blank<br>
+&nbsp; }<br>
+&nbsp;
+  <font color="#8000a0">public int</font> <font color="#0000ff">size</font>() { <font color="#8000a0"><font color="#ff8000">return</font> </font>size; }<br>
+&nbsp;
+  <font color="#8000a0">public boolean</font> <font color="#0000ff">isEmpty</font>() {<br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#ff8000">if</font><font color="#0000ff"> </font>(top == null) <font color="#8000a0"><font color="#ff8000">return</font> </font>true;<br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#8000a0"><font color="#ff8000">return</font> </font>false;<br>
+&nbsp; }<br>
+&nbsp;
+  <font color="#8000a0">public void</font> <font color="#0000ff">push</font>(E elem) {<br>
+&nbsp;&nbsp;&nbsp; // fill in the blank<br>
+&nbsp; }<br>
+&nbsp;
+  <font color="#8000a0">public </font>E <font color="#0000ff">top</font>() {<br>
+&nbsp;&nbsp;&nbsp; // fill in the blank<br>
+&nbsp; }<br>
+&nbsp;
+  <font color="#8000a0">public </font>E <font color="#0000ff">pop</font>() {<br>
+&nbsp;&nbsp;&nbsp; // fill in the blank<br>
+&nbsp; }<br>
+}</code>
+</p></td>
+  </tr>
+  <tr>
+    <td width="100%" bgcolor="#CCE6FF" bordercolor="#CCE6FF"><b><font size="4">
+	Stack Applications</font></b></td></tr><tr>
+    <td width="100%">
+
+<p align="left">Stacks are widely used in computer programming, particularly in 
+the following three applications:</p><ul>
+  <li>
+    <p align="left">Evaluation of expression</p></li><li>
+    <p align="left">Backtracking (game playing, finding paths, exhaustive 
+	search)</p></li><li>
+    <p align="left">Memory management</p></li></ul><p align="left">Let's practice using stack on a simple example: reverse an array 
+using stack.</p><p align="left"><b><u>Matching Parentheses</u>&nbsp;</b></p><p align="left">Arithmetic expressions can contain various pairs of grouping 
+symbols, such as:</p><ul>
+  <li>
+    <p align="left">Parentheses: ( and )</p></li><li>
+    <p align="left">Braces: { and }</p></li><li>
+    <p align="left">Brackets: [ and ]</p></li><li>
+    <p align="left">Floor function symbols</p></li><li>
+    <p align="left">Ceiling function symbols</p></li></ul><p align="left">Each opening symbol must match with its corresponding closing 
+symbol. For example, look at the following expression: [(<i>x</i> + 8) * 
+(9-2)].&nbsp;</p><p align="left"><font color="#0000FF"><b>Algorithm</b> ParenMatch(<i>X</i>, <i>n</i>):<br> &nbsp;&nbsp;&nbsp;
+<b>Input</b>: An array <i>X</i> of <i>n</i> tokens, each of which is either a 
+grouping symbol, a variable, an arithmetic operator, or a number<br> &nbsp;&nbsp;&nbsp;
+<b>Output</b>: true iff. all the grouping symbols in <i>X</i> match<br> &nbsp;&nbsp;&nbsp; 
+Let <i>S</i> be an empty stack<br> &nbsp;&nbsp;&nbsp; <b>for</b> <i>i</i> = 0 <b>
+to</b>
+<i>n</i>-1 <b>do</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> <i>
+X</i>[<i>i</i>] is an opening grouping symbol <b>then</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<i>S</i>.push(<i>X</i>[<i>i</i>])<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>else if</b> <i>X</i>[<i>i</i>] is a closing grouping symbol <b>then</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>if</b> <i>S</i>.isEmpty() <b>then</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>return</b> false </font><font color="#FF0000">{nothing to match with}</font><font color="#0000FF"><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>if</b> <i>S</i>.pop() does not match the type of <i>X</i>[<i>i</i>] <b>then</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>return</b> false </font><font color="#FF0000">{wrong type}</font><font color="#0000FF"><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>if</b> <i>S</i>.isEmpty() <b>then</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>return</b> true </font><font color="#FF0000">{every symbol matched}</font><font color="#0000FF"><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>else return</b> false </font><font color="#FF0000">{some symbols were never 
+matched}</font></p><p align="left"><b><u>Matching HTML Tags</u></b></p><p align="left">HTML is the standard format for hyperlinked documents on the 
+Internet. In an HTML document, portions of text are delimited by <b>HTML tags</b>.&nbsp;</p>
+<code>
+<font color="#ff8000">import</font> java.io.*;<br>
+<font color="#ff8000">import</font> java.util.Scanner;<br>
+<br>
+<font color="#ff0080">/** Simplified test of matching tags in an HTML document. */</font><br>
+<font color="#8000a0">public</font> <font color="#8000a0"><font color="#ff8000">class</font> </font>HTML {<br>
+&nbsp;
+  <font color="#ff0080">/** Strip the first and last characters off a &lt;tag&gt; string. */</font><br>
+&nbsp;
+  <font color="#8000a0">public static</font> <font color="#8000a0">String </font><font color="#0000ff">stripEnds</font>(<font color="#8000a0">String</font> t) {<br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#ff8000">if</font><font color="#0000ff"> </font>(t.<font color="#0000ff">length</font>() &lt;= 2) <font color="#8000a0"><font color="#ff8000">return</font> </font>null;	<font color="#ff0080">// this is a degenerate tag</font><br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#8000a0"><font color="#ff8000">return</font> </font>t.<font color="#0000ff">substring</font>(1,t.<font color="#0000ff">length</font>()-1);<br>
+&nbsp; }<br>
+&nbsp;
+  <font color="#ff0080">/** Test if a stripped tag string is empty or a true opening tag. */</font><br>
+&nbsp;
+  <font color="#8000a0">public static</font> <font color="#8000a0">boolean </font><font color="#0000ff">isOpeningTag</font>(<font color="#8000a0">String</font> tag) {<br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#ff8000">return</font><font color="#0000ff"> </font>(tag.<font color="#0000ff">length</font>() == 0) ||<font color="#0000ff"> </font>(tag.<font color="#0000ff">charAt</font>(0) != '/');<br>
+&nbsp; }
+<br>
+<font color="#ff0080">&nbsp; /** Test if stripped tag1 matches closing tag2 (first character is '/'). */</font><br>
+&nbsp;
+  <font color="#8000a0">public static</font> <font color="#8000a0">boolean </font><font color="#0000ff">areMatchingTags</font>(<font color="#8000a0">String</font> tag1, <font color="#8000a0">String </font>tag2) {<br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#8000a0"><font color="#ff8000">return</font> </font>tag1.<font color="#0000ff">equals</font>(tag2.<font color="#0000ff">substring</font>(1)); <font color="#ff0080">// test against name after '/'</font><br>
+&nbsp; }<br>
+&nbsp;
+  <font color="#ff0080">/** Test if every opening tag has a matching closing tag. */</font><br>
+&nbsp;
+  <font color="#8000a0">public static</font> <font color="#8000a0">boolean </font><font color="#0000ff">isHTMLMatched</font>(<font color="#8000a0">String</font>[] tag) {<br>
+&nbsp;&nbsp;&nbsp; NodeStack&lt;<font color="#8000a0">String</font>&gt; S = <font color="#8000a0"><font color="#ff8000">new</font> </font>NodeStack&lt;<font color="#8000a0">String</font>&gt;();	<font color="#ff0080">// Stack for matching tags</font><br>
+&nbsp;&nbsp;&nbsp;
+    <font color="#ff8000">for</font><font color="#0000ff"> </font>(<font color="#8000a0">int</font> i = 0;<font color="#0000ff"> </font>(i &lt; tag.length) &amp;&amp;<font color="#0000ff"> </font>(tag[i] != null); i++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <font color="#ff8000">if</font><font color="#0000ff"> </font>(<font color="#0000ff">isOpeningTag</font>(tag[i]))<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	S.<font color="#0000ff">push</font>(tag[i]); <font color="#ff0080">// opening tag; push it on the stack</font><br>
+      <font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else</font> {<br>
+	<font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(S.<font color="#0000ff">isEmpty</font>())<br>
+ <font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return</font> </font>false;		<font color="#ff0080">// nothing to match</font>
+	<br>
+ <font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(!<font color="#0000ff">areMatchingTags</font>(S.<font color="#0000ff">pop</font>(), tag[i]))<br>
+	  <font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return</font> </font>false; 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																<font color="#ff0080">// wrong match</font><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	}<br>
+&nbsp;&nbsp;&nbsp;
+}<br>
+    <font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(S.<font color="#0000ff">isEmpty</font>()) <font color="#8000a0"><font color="#ff8000">return</font> </font>true; <font color="#ff0080">// we matched everything</font><br>
+
+    <font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font> </font>false; <font color="#ff0080">// we have some tags that never were matched</font><br>
+&nbsp;
+}<br>
+  <font color="#8000a0">&nbsp; public final</font> <font color="#8000a0">static int</font> CAPACITY = 1000; <font color="#ff0080">// Tag array size</font><br>
+  <font color="#ff0080">&nbsp; /* Parse an HTML document into an array of html tags */</font><br>
+  <font color="#8000a0">&nbsp; public static</font> <font color="#8000a0">String</font>[] <font color="#0000ff">parseHTML</font>(Scanner s) {<br>
+    <font color="#8000a0">&nbsp;&nbsp;&nbsp; String</font>[] tag = <font color="#8000a0"><font color="#ff8000">new</font> String</font>[CAPACITY]; <font color="#ff0080">// our tag array (initially all null)</font><br>
+    <font color="#8000a0">&nbsp;&nbsp;&nbsp; int </font>count = 0;			<font color="#ff0080">// tag counter</font><br>
+    <font color="#8000a0">&nbsp;&nbsp;&nbsp; String </font>token;			<font color="#ff0080">// token&nbsp;returned by the scanner s</font><br>
+    <font color="#ff8000">&nbsp;&nbsp;&nbsp; while</font><font color="#0000ff"> </font>(s.<font color="#0000ff">hasNextLine</font>()) {<br>
+<font color="#ff8000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while</font><font color="#0000ff"> </font>((token = s.<font color="#0000ff">findInLine</font>(<font color="#008000">"&lt;[^&gt;]*&gt;"</font>)) != null)&nbsp;<font color="#ff0080">// find the next tag</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tag[count++] = <font color="#0000ff">stripEnds</font>(token); <font color="#ff0080">// strip the ends off this tag</font><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+s.<font color="#0000ff">nextLine</font>(); <font color="#ff0080">// go to the next line </font><br>
+&nbsp;&nbsp;&nbsp;
+}<br>
+<font color="#8000a0"><font color="#ff8000">&nbsp;&nbsp;&nbsp; return</font> </font>tag; <font color="#ff0080">// our array of (stripped) tags </font><br>
+&nbsp;
+}<br>
+  <font color="#8000a0">&nbsp; public static</font> <font color="#8000a0">void </font><font color="#0000ff">main</font>(<font color="#8000a0">String</font>[] args) <font color="#8000a0"><font color="#ff8000">throws</font> </font>IOException { <font color="#ff0080">// tester</font><br>
+    <font color="#ff8000">&nbsp;&nbsp;&nbsp; if</font><font color="#0000ff"> </font>(<font color="#0000ff">isHTMLMatched</font>(<font color="#0000ff">parseHTML</font>(<font color="#ff8000">new</font> <font color="#0000ff">Scanner</font>(System.in))))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+System.out.<font color="#0000ff">println</font>(<font color="#008000">"The input file is a matched HTML document."</font>);<br>
+    <font color="#ff8000">&nbsp;&nbsp;&nbsp; else</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+System.out.<font color="#0000ff">println</font>(<font color="#008000">"The input file is not a matched HTML document."</font>);<br>
+&nbsp;
+}<br>
+}
+</code>
+<p align="left">The method parseHTML uses a Scanner s to extract the tags from 
+the HTML document, using the pattern "&lt;[^&gt;]*&gt;", which denotes a string that 
+starts with '&lt;', followed by zero or more characters that are not '&gt;', followed 
+by a '&gt;'. The method findInLine will attempt to find the next occurrence of the 
+specified pattern constructed from the specified string.</p><p align="left"><b><u>Evaluating Arithmetic Expressions</u></b></p><p align="left">Consider the following expression: (((6 + 9)/3)*(6-4)).</p><p align="left">To evaluate this expression, we maintain two stacks: one for the 
+operands and the other for the operators. We follow the rules:</p><ul>
+  <li>
+    <p align="left">When an operand is read, it is pushed onto the operand stack.</p></li><li>
+    <p align="left">When one of the four operators is read, it is pushed onto 
+	the operator stack if it has a higher precedence than the top of the 
+	operator stack. Otherwise, an evaluation step takes place. The step pops two 
+	operands from the operand stack and pops the top operator from the operator 
+	stack. The result is calculated and pushed back onto the operand stack.</p></li><li>
+    <p align="left">When a right parenthesis is read, an evaluation step takes 
+	place. The step pops two operands from the operand stack and pops the top 
+	operator from the operator stack. The result is calculated and pushed back 
+	onto the operand stack. This process will continue until the top of the 
+	stack is a left parenthesis. A left parenthesis should be popped off the operator 
+	stack.</p></li><li>
+    <p align="left">When a left parenthesis is read, it is pushed onto the 
+	operator stack.</p></li></ul>
+<p align="left">Please see an example on board.</p>
+<p align="left"><b><u>Backtracking</u></b></p><p align="left">Backtracking is a special case of 
+the brute force search, which 
+searches all possible combinations. Backtracking algorithms try each possibility 
+until they find the right one. It is a depth-first search of the set of possible 
+solutions. During the search, if an alternative doesn't work, the search 
+backtracks to the choice point, the place which presented different 
+alternatives, and tries the next alternative. When the alternatives are 
+exhausted, the search returns to the previous choice point and try the next 
+alternative there. If there are no more choice points, the search fails. Find 
+our way through a maze. Find a path from one point in a graph (roadmap) to 
+another point. Play a game in which there are moves to be made (checkers, 
+chess).</p><p align="left">Stacks can be used as part of the solution. Recursion is 
+another, typically more favored, solution.</p><p align="left">Let's play a <a href="http://www.siteexperts.com/tips/functions/ts20/mm.asp">
+game</a>.</p><p align="left"><u><b>Memory Management</b></u></p><p align="left">In Unix system, memory is organized as a huge array. However, 
+you have limited access to the elements of memory. There are 4 regions of memory 
+that are legal:&nbsp;</p><ul>
+  <li>
+    <p align="left">The <b>code</b>: The instructions of your program.</p></li><li>
+    <p align="left">The <b>globals</b>: Your global variables.</p></li><li>
+    <p align="left">The <b>heap</b>: Dynamically allocated memories.</p></li><li>
+    <p align="left">The <b>stack</b>: Your local variables and methods 
+	arguments.</p></li></ul></td></tr></tbody></table>
+                                </div>
+				
+			</div> <!-- mainContent -->
+			
+			<div id="footer">  
+				<p><a href="Algorithms.html">Algorithm Visualizations</a></p>
+			</div>
+
+		</div><!-- container -->
+        <script type = "text/javascript" src = "Scripts/Google.js"></script>                
+	</body>
+
+<!-- Mirrored from dichchankinh.com/~galles/visualization/StackArray.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 28 Nov 2022 11:43:02 GMT -->
+</html>
